@@ -474,11 +474,12 @@
     function loadGoogleApis() {
         const gapiScript = document.createElement("script");
         gapiScript.src = "https://apis.google.com/js/api.js";
-        gapiScript.onload = () => { window.gapiLoaded = gapiLoaded; };
+        gapiScript.onload = gapiLoaded; // <-- CORRECCIÓN AQUÍ
         document.head.appendChild(gapiScript);
+        
         const gisScript = document.createElement("script");
         gisScript.src = "https://accounts.google.com/gsi/client";
-        gisScript.onload = () => { window.gisLoaded = gisLoaded; };
+        gisScript.onload = gisLoaded; // <-- CORRECCIÓN AQUÍ
         document.head.appendChild(gisScript);
     }
 
