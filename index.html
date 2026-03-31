@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Agenda Académica y de Investigación - Doctorado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            padding: 24px 16px;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #0f2b3d;
+            color: white;
+            padding: 24px 28px;
+        }
+
+        .header h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .header p {
+            opacity: 0.85;
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .section {
+            margin-bottom: 48px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f2b3d;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section-title span {
+            background: #eef2ff;
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: normal;
+            color: #1e40af;
+        }
+
+        /* Auth panel */
+        .auth-card {
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 32px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border: 1px solid #e2edf2;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .status-badge {
+            background: #e6f0fa;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            color: #1e4a76;
+        }
+
+        button {
+            border: none;
+            background: #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-primary {
+            background: #1e40af;
+            color: white;
+        }
+        .btn-primary:hover { background: #1e3a8a; }
+        .btn-google {
+            background: #4285f4;
+            color: white;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* Research blocks */
+        .day-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .day-btn {
+            background: #f1f5f9;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .day-btn.active {
+            background: #1e40af;
+            color: white;
+        }
+
+        .blocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+
+        .block-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .block-header {
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+            margin-bottom: 12px;
+        }
+
+        .task-display {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 12px;
+            margin: 12px 0;
+            font-size: 0.9rem;
+            word-break: break-word;
+            min-height: 70px;
+        }
+
+        .empty-task {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .block-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .small-btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        /* Tabla distributivo */
+        .schedule-wrapper {
+            overflow-x: auto;
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 700px;
+        }
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #e2e8f0;
+            padding: 12px 8px;
+            vertical-align: top;
+            background: white;
+        }
+        .schedule-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .slot-activity {
+            font-weight: 600;
+            color: #0f3b5c;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+        }
+        .slot-task {
+            background: #fefce8;
+            padding: 6px;
+            border-radius: 12px;
+            margin: 6px 0;
+            font-size: 0.8rem;
+        }
+        .slot-buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .calendar-sync-btn {
+            background: #eef2ff;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 700px) {
+            .content { padding: 20px; }
+            .section-title { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>📘 Agenda Doctorado & Investigación</h1>
+        <p>Planifica tu rutina diaria, bloques de investigación y jornada laboral (Distributivo Docente). Sincroniza con Google Calendar.</p>
+    </div>
+    <div class="content">
+        <!-- Autenticación Google -->
+        <div class="auth-card">
+            <div class="auth-buttons">
+                <button id="btn-login" class="btn-google" disabled>🔌 Conectar Google Calendar</button>
+                <button id="btn-logout" class="btn-outline" style="display: none;">🚪 Desconectar</button>
+            </div>
+            <div id="auth-status" class="status-badge">⚡ Inicializando API...</div>
+        </div>
+
+        <!-- SECCIÓN 1: Bloques de investigación (personal) -->
+        <div class="section">
+            <div class="section-title">
+                🧠 Bloques de investigación doctoral
+                <span>Asigna tareas específicas</span>
+            </div>
+            <div class="day-selector" id="research-day-selector">
+                <!-- días se generan con JS -->
+            </div>
+            <div id="research-blocks-container" class="blocks-grid"></div>
+        </div>
+
+        <!-- SECCIÓN 2: Jornada laboral (Distributivo Docente) -->
+        <div class="section">
+            <div class="section-title">
+                🏛️ Jornada laboral universitaria · 13:00 – 21:00
+                <span>Distributivo Docente</span>
+            </div>
+            <div class="schedule-wrapper" id="work-schedule-wrapper">
+                <!-- tabla se construye dinámicamente -->
+            </div>
+            <div style="margin-top: 16px; font-size: 0.8rem; background:#f1f5f9; padding: 8px 12px; border-radius: 20px;">
+                📌 Cada celda contiene la actividad institucional (AD/AG/AV/AI). Puedes añadir una tarea específica (ej. "preparar examen", "revisar tesis") y sincronizarla con Calendar.
+            </div>
+        </div>
+        <footer>
+            ✅ Las tareas se guardan automáticamente en tu navegador.<br>
+            🕒 Zona horaria: America/Guayaquil. Los eventos se crearán en el calendario "primary" para el próximo día de la semana seleccionado.
+        </footer>
+    </div>
+</div>
+
+<script>
+    // ==================== CONFIGURACIÓN INICIAL (CAMBIAR AQUÍ TUS CREDENCIALES) ====================
+    const API_KEY = "AIzaSyA0xeGEQfBkwE5aiJXCxNHoJjzGbucqqzY";                 // Reemplazar con tu API Key de Google Cloud
+    const CLIENT_ID = "572020773648-la4vcch4st80srhh56gskb62sunkp2l0.apps.googleusercontent.com"; // Reemplazar con tu Client ID OAuth 2.0
+    const SCOPES = "https://www.googleapis.com/auth/calendar.events";
+    const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest";
+    const TIME_ZONE = "America/Guayaquil";
+
+    // Definición de bloques de investigación (horarios fijos)
+    const RESEARCH_BLOCKS = [
+        { id: "research_1", name: "🔬 Investigación profunda", start: "07:30", end: "09:00", defaultTask: "Leer artículos / diseñar experimento" },
+        { id: "research_2", name: "✍️ Escritura / producción", start: "09:00", end: "10:30", defaultTask: "Redactar marco teórico" },
+        { id: "research_3", name: "📋 Gestión y tareas cortas", start: "10:30", end: "11:30", defaultTask: "Revisar pendientes administrativas" },
+        { id: "research_4", name: "🌙 Revisión ligera", start: "22:20", end: "23:20", defaultTask: "Planificar día siguiente / lectura ligera" }
+    ];
+
+    // Días de la semana (para selector)
+    const WEEKDAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    const WEEKDAYS_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    // ==================== DISTRIBUTIVO DOCENTE (del archivo PDF) ====================
+    // Estructura: horas desde 13:00 hasta 20:00 (cada hora tiene actividad por día)
+    const HOURS = ["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
+    // Actividades según distributivo (basado en mar26_ago26_grado...)
+    const SCHEDULE_DATA = {
+        "Lunes": {
+            "13:00": "AD 5 - Tutorías",
+            "14:00": "AD 5 - Tutorías",
+            "15:00": "AD 1 - ACD Ecuaciones Diferenciales (2do A)",
+            "16:00": "AD 1 - ACD Ecuaciones Diferenciales (2do A)",
+            "17:00": "AD 1 - ACD Álgebra Lineal (1ro A)",
+            "18:00": "AD 1 - ACD Álgebra Lineal (1ro A)",
+            "19:00": "AV 1 - Vinculación",
+            "20:00": "AV 1 - Vinculación"
+        },
+        "Martes": {
+            "13:00": "AG 5c - Consejo Consultivo",
+            "14:00": "AD 1 - ACD Ecuaciones Diferenciales (2do A)",
+            "15:00": "AD 1 - ACD Ecuaciones Diferenciales (2do A)",
+            "16:00": "AD 1 - ACD Cálculo de una Variable (1ro A)",
+            "17:00": "AD 1 - ACD Cálculo de una Variable (1ro A)",
+            "18:00": "AD 1 - APE Cálculo de una Variable (1ro A)",
+            "19:00": "AI 1 - Investigación",
+            "20:00": "AI 1 - Investigación"
+        },
+        "Miércoles": {
+            "13:00": "AG 5c - Consejo Consultivo",
+            "14:00": "AD 2 - Planificación",
+            "15:00": "AD 2 - Planificación",
+            "16:00": "AD 8 - Evaluación",
+            "17:00": "AD 1 - ACD Cálculo de una Variable (1ro A)",
+            "18:00": "AD 1 - ACD Cálculo de una Variable (1ro A)",
+            "19:00": "AD 1 - APE Ecuaciones Diferenciales (2do A)",
+            "20:00": "AD 1 - APE Ecuaciones Diferenciales (2do A)"
+        },
+        "Jueves": {
+            "13:00": "AG 5c - Consejo Consultivo",
+            "14:00": "AD 2 - Planificación",
+            "15:00": "AD 2 - Planificación",
+            "16:00": "AD 8 - Evaluación",
+            "17:00": "AV 1 - Vinculación",
+            "18:00": "AV 1 - Vinculación",
+            "19:00": "AD 1 - APE Cálculo de una Variable (1ro A)",
+            "20:00": "AD 1 - APE Cálculo de una Variable (1ro A)"
+        },
+        "Viernes": {
+            "13:00": "AG 5c - Consejo Consultivo",
+            "14:00": "AD 2 - Planificación",
+            "15:00": "AD 9 - Dirección de Trabajos de Titulación",
+            "16:00": "AD 8 - Evaluación",
+            "17:00": "AD 1 - ACD Álgebra Lineal (1ro A)",
+            "18:00": "AD 1 - APE Álgebra Lineal (1ro A)",
+            "19:00": "AI 1 - Investigación",
+            "20:00": "AI 1 - Investigación"
+        },
+        "Sábado": {},  // sábado y domingo sin actividades formales
+        "Domingo": {}
+    };
+
+    // ==================== ESTADO GLOBAL Y ALMACENAMIENTO LOCAL ====================
+    let gapiInited = false, gisInited = false;
+    let tokenClient = null;
+    let currentResearchDay = "Lunes";   // día seleccionado para bloques de investigación
+
+    // Estructuras de almacenamiento: tasksResearch[day][blockId] = string, workTasks[day][hour] = string
+    let tasksResearch = JSON.parse(localStorage.getItem("agenda_tasks_research")) || {};
+    let workTasks = JSON.parse(localStorage.getItem("agenda_work_tasks")) || {};
+
+    function saveResearchTasks() {
+        localStorage.setItem("agenda_tasks_research", JSON.stringify(tasksResearch));
+    }
+    function saveWorkTasks() {
+        localStorage.setItem("agenda_work_tasks", JSON.stringify(workTasks));
+    }
+
+    // Helper: inicializar estructura vacía si no existe
+    function initStorage() {
+        WEEKDAYS.forEach(day => {
+            if (!tasksResearch[day]) tasksResearch[day] = {};
+            RESEARCH_BLOCKS.forEach(block => {
+                if (tasksResearch[day][block.id] === undefined) {
+                    tasksResearch[day][block.id] = block.defaultTask;
+                }
+            });
+            if (!workTasks[day]) workTasks[day] = {};
+            HOURS.forEach(hour => {
+                if (workTasks[day][hour] === undefined) workTasks[day][hour] = "";
+            });
+        });
+        saveResearchTasks();
+        saveWorkTasks();
+    }
+    initStorage();
+
+    // ==================== GOOGLE CALENDAR API (OAUTH + EVENTOS) ====================
+    function updateAuthUI(isLoggedIn) {
+        const btnLogin = document.getElementById("btn-login");
+        const btnLogout = document.getElementById("btn-logout");
+        const statusDiv = document.getElementById("auth-status");
+        if (isLoggedIn) {
+            btnLogin.style.display = "none";
+            btnLogout.style.display = "inline-flex";
+            statusDiv.innerHTML = "✅ Conectado a Google Calendar · Sesión activa";
+            statusDiv.style.background = "#d9f0ec";
+        } else {
+            btnLogin.style.display = "inline-flex";
+            btnLogout.style.display = "none";
+            statusDiv.innerHTML = "🔴 No autenticado · Conecta para sincronizar eventos";
+            statusDiv.style.background = "#f1f5f9";
+        }
+    }
+
+    function maybeEnableButtons() {
+        const btnLogin = document.getElementById("btn-login");
+        if (gapiInited && gisInited && btnLogin) btnLogin.disabled = false;
+    }
+
+    async function initializeGapiClient() {
+        await gapi.client.init({ apiKey: API_KEY, discoveryDocs: [DISCOVERY_DOC] });
+        gapiInited = true;
+        maybeEnableButtons();
+        const token = gapi.client.getToken();
+        updateAuthUI(!!token);
+    }
+
+    function gapiLoaded() { gapi.load("client", initializeGapiClient); }
+
+    function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            callback: (resp) => {
+                if (resp.error) throw resp;
+                updateAuthUI(true);
+            }
+        });
+        gisInited = true;
+        maybeEnableButtons();
+    }
+
+    function loadGoogleApis() {
+        const gapiScript = document.createElement("script");
+        gapiScript.src = "https://apis.google.com/js/api.js";
+        gapiScript.onload = () => { window.gapiLoaded = gapiLoaded; };
+        document.head.appendChild(gapiScript);
+        const gisScript = document.createElement("script");
+        gisScript.src = "https://accounts.google.com/gsi/client";
+        gisScript.onload = () => { window.gisLoaded = gisLoaded; };
+        document.head.appendChild(gisScript);
+    }
+
+    // Login / Logout handlers
+    function handleLogin() {
+        if (!tokenClient) return;
+        const token = gapi.client.getToken();
+        if (!token) tokenClient.requestAccessToken({ prompt: "consent" });
+        else tokenClient.requestAccessToken({ prompt: "" });
+    }
+    function handleLogout() {
+        const token = gapi.client.getToken();
+        if (token) {
+            google.accounts.oauth2.revoke(token.access_token, () => {
+                gapi.client.setToken(null);
+                updateAuthUI(false);
+            });
+        } else updateAuthUI(false);
+    }
+
+    // Obtener fecha del próximo día de la semana (ej: "Lunes" -> próximo lunes)
+    function getNextDateForWeekday(weekdaySpanish) {
+        const map = { "Lunes":"Monday", "Martes":"Tuesday", "Miércoles":"Wednesday", "Jueves":"Thursday", "Viernes":"Friday", "Sábado":"Saturday", "Domingo":"Sunday" };
+        const targetEn = map[weekdaySpanish];
+        const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        const targetIdx = days.indexOf(targetEn);
+        const today = new Date();
+        let todayIdx = today.getDay();
+        let diff = targetIdx - todayIdx;
+        if (diff <= 0) diff += 7;
+        const result = new Date(today);
+        result.setDate(today.getDate() + diff);
+        result.setHours(0,0,0,0);
+        return result;
+    }
+
+    async function createCalendarEvent(title, description, startDateTime, endDateTime) {
+        const token = gapi.client.getToken();
+        if (!token) { alert("No has iniciado sesión con Google Calendar. Conecta tu cuenta."); return false; }
+        const event = {
+            summary: title,
+            description: description,
+            start: { dateTime: startDateTime, timeZone: TIME_ZONE },
+            end: { dateTime: endDateTime, timeZone: TIME_ZONE }
+        };
+        try {
+            await gapi.client.calendar.events.insert({ calendarId: "primary", resource: event });
+            alert(`✅ Evento "${title}" creado en Google Calendar.`);
+            return true;
+        } catch(err) {
+            console.error(err);
+            alert("Error al crear evento. Revisa consola y credenciales.");
+            return false;
+        }
+    }
+
+    // Función genérica para crear evento desde bloque de investigación o slot laboral
+    async function syncToCalendar(daySpanish, startHour, endHour, title, extraDesc) {
+        const dateObj = getNextDateForWeekday(daySpanish);
+        const formatDateTime = (date, time) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth()+1).padStart(2,'0');
+            const d = String(date.getDate()).padStart(2,'0');
+            return `${y}-${m}-${d}T${time}:00-05:00`;
+        };
+        const startISO = formatDateTime(dateObj, startHour);
+        const endISO = formatDateTime(dateObj, endHour);
+        const fullDesc = `${extraDesc}\nFecha planificada: ${daySpanish} ${startHour}-${endHour}`;
+        await createCalendarEvent(title, fullDesc, startISO, endISO);
+    }
+
+    // ==================== RENDERIZAR BLOQUES DE INVESTIGACIÓN ====================
+    function renderResearchBlocks() {
+        const container = document.getElementById("research-blocks-container");
+        const blocksHtml = RESEARCH_BLOCKS.map(block => {
+            const currentTask = tasksResearch[currentResearchDay]?.[block.id] || "";
+            return `
+                <div class="block-card">
+                    <div class="block-header">${block.name}<br><span style="font-size:0.7rem; font-weight:normal;">${block.start} – ${block.end}</span></div>
+                    <div class="task-display">
+                        ${currentTask ? `<strong>📌 Tarea:</strong><br>${currentTask}` : `<span class="empty-task">Sin tarea asignada</span>`}
+                    </div>
+                    <div class="block-actions">
+                        <button class="small-btn" data-block-id="${block.id}" data-action="edit">✏️ Editar tarea</button>
+                        <button class="small-btn btn-primary" data-block-id="${block.id}" data-action="sync">📅 Sincronizar con Calendar</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        container.innerHTML = blocksHtml;
+
+        // Event listeners para botones de cada bloque
+        document.querySelectorAll('[data-block-id]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const blockId = btn.dataset.blockId;
+                const block = RESEARCH_BLOCKS.find(b => b.id === blockId);
+                if (btn.dataset.action === 'edit') {
+                    const newTask = prompt(`Escribe la tarea para "${block.name}" (${currentResearchDay}):`, tasksResearch[currentResearchDay][blockId]);
+                    if (newTask !== null) {
+                        tasksResearch[currentResearchDay][blockId] = newTask.trim() || "(sin descripción)";
+                        saveResearchTasks();
+                        renderResearchBlocks();
+                    }
+                } else if (btn.dataset.action === 'sync') {
+                    const taskDesc = tasksResearch[currentResearchDay][blockId] || "Investigación doctoral";
+                    const title = `📖 ${block.name} - ${currentResearchDay}`;
+                    const description = `Tarea: ${taskDesc}\nBloque de investigación.`;
+                    syncToCalendar(currentResearchDay, block.start, block.end, title, description);
+                }
+            });
+        });
+    }
+
+    // ==================== RENDERIZAR TABLA DE JORNADA LABORAL ====================
+    function renderWorkSchedule() {
+        const wrapper = document.getElementById("work-schedule-wrapper");
+        let html = `<table class="schedule-table"><thead><tr><th>Hora</th>`;
+        WEEKDAYS.forEach(day => { html += `<th>${day}</th>`; });
+        html += `</tr></thead><tbody>`;
+        HOURS.forEach(hour => {
+            html += `<tr><td style="font-weight:600;">${hour}</td>`;
+            WEEKDAYS.forEach(day => {
+                const activity = SCHEDULE_DATA[day]?.[hour] || "— Sin actividad —";
+                const userTask = workTasks[day]?.[hour] || "";
+                html += `<td>
+                            <div class="slot-activity">${activity}</div>
+                            <div class="slot-task">${userTask ? `📋 ${userTask}` : `<span style="color:#94a3b8;">➕ Añade una tarea</span>`}</div>
+                            <div class="slot-buttons">
+                                <button class="small-btn" data-day="${day}" data-hour="${hour}" data-action="edit-work">Editar tarea</button>
+                                <button class="small-btn calendar-sync-btn" data-day="${day}" data-hour="${hour}" data-action="sync-work">📅 Enviar a Calendar</button>
+                            </div>
+                        </td>`;
+            });
+            html += `</tr>`;
+        });
+        html += `</tbody></table>`;
+        wrapper.innerHTML = html;
+
+        // listeners para botones de trabajo
+        document.querySelectorAll('[data-action="edit-work"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const day = btn.dataset.day;
+                const hour = btn.dataset.hour;
+                const currentTask = workTasks[day][hour] || "";
+                const newTask = prompt(`Tarea específica para ${day} a las ${hour}:`, currentTask);
+                if (newTask !== null) {
+                    workTasks[day][hour] = newTask.trim();
+                    saveWorkTasks();
+                    renderWorkSchedule();
+                }
+            });
+        });
+        document.querySelectorAll('[data-action="sync-work"]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const day = btn.dataset.day;
+                const hour = btn.dataset.hour;
+                const activity = SCHEDULE_DATA[day]?.[hour] || "Actividad académica";
+                const userTask = workTasks[day][hour] || "(sin tarea específica)";
+                const startHour = hour;
+                const endHour = (() => {
+                    const idx = HOURS.indexOf(hour);
+                    if (idx < HOURS.length-1) return HOURS[idx+1];
+                    return "21:00";
+                })();
+                const title = `🏛️ ${activity} - ${day} ${hour}`;
+                const description = `Actividad institucional: ${activity}\nTarea planificada: ${userTask}`;
+                await syncToCalendar(day, startHour, endHour, title, description);
+            });
+        });
+    }
+
+    // ==================== SELECTOR DE DÍA PARA INVESTIGACIÓN ====================
+    function renderDaySelector() {
+        const container = document.getElementById("research-day-selector");
+        container.innerHTML = WEEKDAYS.map(day => `<div class="day-btn ${currentResearchDay === day ? 'active' : ''}" data-day="${day}">${day}</div>`).join('');
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentResearchDay = btn.dataset.day;
+                renderDaySelector();
+                renderResearchBlocks();
+            });
+        });
+    }
+
+    // ==================== INICIALIZAR APP ====================
+    function init() {
+        renderDaySelector();
+        renderResearchBlocks();
+        renderWorkSchedule();
+        loadGoogleApis();
+
+        document.getElementById("btn-login").addEventListener("click", handleLogin);
+        document.getElementById("btn-logout").addEventListener("click", handleLogout);
+        // Validar credenciales de ejemplo
+        if (API_KEY === "YOUR_API_KEY" || CLIENT_ID === "YOUR_CLIENT_ID.apps.googleusercontent.com") {
+            document.getElementById("auth-status").innerHTML = "⚠️ Configuración pendiente: reemplaza API_KEY y CLIENT_ID en el código (ver instrucciones).";
+            document.getElementById("btn-login").disabled = true;
+        }
+    }
+    init();
+</script>
+</body>
+</html>
